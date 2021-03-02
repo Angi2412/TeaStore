@@ -1,20 +1,13 @@
-import json
 import logging
 from random import randint
 
 from locust import HttpUser, task
 
 # logging
-logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.INFO)
 
 
 class UserBehavior(HttpUser):
-    # database init
-    number_of_categories = 5
-    number_of_products_per_category = 100
-    number_of_new_user = 100
-    number_of_orders = 5
-    number_of_products_per_page = 20
 
     @task
     def load(self) -> None:
@@ -22,14 +15,14 @@ class UserBehavior(HttpUser):
         Simulates user behaviour.
         :return: None
         """
-        logging.debug("Starting load.")
+        logging.info("Starting load.")
         self.visit_home()
         self.login()
         self.browse()
         self.buy()
         self.visit_profile()
         self.logout()
-        logging.debug("Completed load.")
+        logging.info("Completed load.")
 
     def visit_home(self) -> None:
         """
@@ -39,7 +32,7 @@ class UserBehavior(HttpUser):
         # load landing page
         res = self.client.get('/')
         if res.ok:
-            logging.debug("Loaded landing page.")
+            logging.info("Loaded landing page.")
         else:
             logging.error(f"Could not load landing page: {res.status_code}")
 
@@ -51,17 +44,17 @@ class UserBehavior(HttpUser):
         # load login page
         res = self.client.get('/login')
         if res.ok:
-            logging.debug("Loaded login page.")
+            logging.info("Loaded login page.")
         else:
             logging.error(f"Could not load login page: {res.status_code}")
         # login
-        username = f"user{randint(1, (self.number_of_new_user - 10))}"
-        credentials = {"username": username, "password": "password"}
-        login_request = self.client.post("/loginAction", params=credentials)
+        user = randint(1, 99)
+        login_request = self.client.post("/loginAction", params={"username": user, "password": "password"})
         if login_request.ok:
-            logging.debug(f"Login with username: {username}")
+            logging.info(f"Login with username: {user}")
         else:
-            logging.error(f"Could not login with username: {username} - status: {login_request.status_code}")
+            logging.error(
+                f"Could not login with username: {user} - status: {login_request.status_code}")
 
     def browse(self) -> None:
         """
@@ -69,22 +62,22 @@ class UserBehavior(HttpUser):
         :return: None
         """
         # execute browsing action randomly between 2 and 5 times
-        for i in range(1, randint(2, self.number_of_orders)):
-            category_id = randint(2, (self.number_of_categories + 1))
-            page = randint(1, int((self.number_of_products_per_category / self.number_of_products_per_page)))
+        for i in range(1, randint(2, 5)):
+            category_id = randint(2, 6)
+            page = randint(1, 5)
             category_request = self.client.get("/category", params={"page": page, "category": category_id})
             if category_request.ok:
-                logging.debug(f"Visited category {category_id} on page 1")
-                product_id = randint(7, (self.number_of_products_per_category + 6))
+                logging.info(f"Visited category {category_id} on page 1")
+                product_id = randint(7, 506)
                 product_request = self.client.get("/product", params={"id": product_id})
                 if product_request.ok:
-                    logging.debug(f"Visited product with id {product_id}.")
+                    logging.info(f"Visited product with id {product_id}.")
                     cart_request = self.client.post("/cartAction", params={"addToCart": "", "productid": product_id})
                     if cart_request.ok:
-                        logging.debug(f"Added product {product_id} to cart.")
+                        logging.info(f"Added product {product_id} to cart.")
                     else:
                         logging.error(
-                            f"Could not put product {product_id} in cart - status {product_request.status_code}")
+                            f"Could not put product {product_id} in cart - status {cart_request.status_code}")
                 else:
                     logging.error(
                         f"Could not visit product {product_id} - status {product_request.status_code}")
@@ -110,7 +103,7 @@ class UserBehavior(HttpUser):
         }
         buy_request = self.client.post("/cartAction", params=user_data)
         if buy_request.ok:
-            logging.debug("Bought products.")
+            logging.info(f"Bought products.")
         else:
             logging.error("Could not buy products.")
 
@@ -121,7 +114,7 @@ class UserBehavior(HttpUser):
         """
         profile_request = self.client.get("/profile")
         if profile_request.ok:
-            logging.debug("Visited profile page.")
+            logging.info("Visited profile page.")
         else:
             logging.error("Could not visit profile page.")
 
@@ -132,6 +125,6 @@ class UserBehavior(HttpUser):
         """
         logout_request = self.client.post("/loginAction", params={"logout": ""})
         if logout_request.ok:
-            logging.debug("Successful logout.")
+            logging.info("Successful logout.")
         else:
             logging.error(f"Could not log out - status: {logout_request.status_code}")

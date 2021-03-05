@@ -20,13 +20,6 @@ spec:
           name: teastore-db
           ports:
             - containerPort: 3306
-          resources:
-            limits:
-              cpu: 400m
-              memory: 200Mi
-            requests:
-              cpu: 300m
-              memory: 100Mi
 ---
 apiVersion: v1
 kind: Service
@@ -64,13 +57,6 @@ spec:
           name: teastore-registry
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 200m
-              memory: 350Mi
-            requests:
-              cpu: 100m
-              memory: 250Mi
 ---
 apiVersion: v1
 kind: Service
@@ -117,13 +103,6 @@ spec:
           name: teastore-persistence
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 200m
-              memory: 550Mi
-            requests:
-              cpu: 100m
-              memory: 450Mi
 ---
 apiVersion: v1
 kind: Service
@@ -133,8 +112,10 @@ metadata:
     app: teastore
     run: teastore-persistence
 spec:
+  type: NodePort
   ports:
     - port: 8080
+      nodePort: 30090
       protocol: TCP
   selector:
     run: teastore-persistence
@@ -166,13 +147,6 @@ spec:
           name: teastore-auth
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 200m
-              memory: 500Mi
-            requests:
-              cpu: 100m
-              memory: 400Mi
 ---
 apiVersion: v1
 kind: Service
@@ -215,13 +189,6 @@ spec:
           name: teastore-image
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 600m
-              memory: 1600Mi
-            requests:
-              cpu: 500m
-              memory: 1500Mi
 ---
 apiVersion: v1
 kind: Service
@@ -264,13 +231,6 @@ spec:
           name: teastore-recommender
           ports:
             - containerPort: 8080
-          resources:
-            limits:
-              cpu: 250m
-              memory: 1800Mi
-            requests:
-              cpu: 150m
-              memory: 1700Mi
 ---
 apiVersion: v1
 kind: Service
@@ -315,11 +275,11 @@ spec:
             - containerPort: 8080
           resources:
             limits:
-              cpu: 200m
-              memory: 2100Mi
+              cpu: 500m
+              memory: 1000Mi
             requests:
               cpu: 100m
-              memory: 2000Mi
+              memory: 500Mi
 ---
 apiVersion: v1
 kind: Service

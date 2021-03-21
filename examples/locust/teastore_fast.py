@@ -9,6 +9,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 
 class UserBehavior(FastHttpUser):
+
     @task(1)
     def load(self) -> None:
         """
